@@ -1,0 +1,6 @@
+@InternshipDistribution_HostAddress = http://localhost:32770
+
+GET {{InternshipDistribution_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
