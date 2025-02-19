@@ -27,18 +27,17 @@ namespace InternshipDistribution.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
         {
-            return await _context.Companies.Where(c => c.DeletedAt == null).ToListAsync();
+            var companies = await _repository.GetAllAsync();
+            return Ok(companies);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Company>> GetCompany(int id)
         {
-            var company = await _context.Companies.FindAsync(id);
+            var company = await _repository.GetByIdAsync(id);
 
-            if (company == null || company.DeletedAt != null)
-            {
+            if (company == null)
                 return NotFound();
-            }
 
             return company;
         }
@@ -46,30 +45,31 @@ namespace InternshipDistribution.Controllers
         [HttpPost]
         public async Task<ActionResult<Company>> CreateCompany(CompanyDto companyDto)
         {
-            Company company = new Company();
+            var company = new Company
+            {
+                Name = companyDto.Name,
+                Description = companyDto.Description
+            };
 
-            company.Name = companyDto.Name;
-            company.Description = companyDto.Description;
+            var createdCompany = await _repository.AddAsync(company);
 
-            _context.Companies.Add(company);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCompany), new { id = company.Id }, company);
+            return CreatedAtAction(nameof(GetCompany), new { id = createdCompany.Id }, createdCompany);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCompany(int id, CompanyDto companyDto)
         {
-            var existingCompany = await _context.Companies.FindAsync(id);
-            if (existingCompany == null || existingCompany.DeletedAt != null)
-            {
+            var company = await _repository.GetByIdAsync(id);
+            if (company == null)
                 return NotFound();
-            }
 
-            existingCompany.Name = companyDto.Name;
-            existingCompany.Description = companyDto.Description;
+            company.Name = companyDto.Name;
+            company.Description = companyDto.Description;
 
-            await _context.SaveChangesAsync();
+            var updated = await _repository.UpdateAsync(company);
+            if (!updated)
+                return BadRequest("Update failed");
+
             return NoContent();
         }
 
@@ -78,9 +78,7 @@ namespace InternshipDistribution.Controllers
         {
             var isDeleted = await _repository.SoftDeleteAsync(id);
             if (!isDeleted)
-            {
                 return NotFound();
-            }
 
             return NoContent();
         }

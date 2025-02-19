@@ -47,19 +47,5 @@ namespace InternshipDistribution.Models
             // Сохраняем изменения в базе данных
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    base.OnModelCreating(modelBuilder);
-
-        //    // Глобальный фильтр для исключения удаленных записей
-        //    modelBuilder.Entity<BaseEntity>()
-        //        .HasQueryFilter(e => e.DeletedAt == null);
-
-        //    // Устанавливаем значение по умолчанию для CreatedAt на уровне базы данных (опционально)
-        //    modelBuilder.Entity<Company>()
-        //        .Property(c => c.CreatedAt)
-        //        .HasDefaultValueSql("NOW()"); // Для PostgreSQL
-        //}
     }
 }
