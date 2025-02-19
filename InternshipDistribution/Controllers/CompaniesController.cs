@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
+using InternshipDistribution.DTO;
 
 namespace InternshipDistribution.Controllers
 {
@@ -43,8 +44,13 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Company>> CreateCompany(Company company)
+        public async Task<ActionResult<Company>> CreateCompany(CompanyDto companyDto)
         {
+            Company company = new Company();
+
+            company.Name = companyDto.Name;
+            company.Description = companyDto.Description;
+
             _context.Companies.Add(company);
             await _context.SaveChangesAsync();
 
@@ -52,21 +58,16 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCompany(int id, Company company)
+        public async Task<IActionResult> UpdateCompany(int id, CompanyDto companyDto)
         {
-            if (id != company.Id)
-            {
-                return BadRequest();
-            }
-
             var existingCompany = await _context.Companies.FindAsync(id);
             if (existingCompany == null || existingCompany.DeletedAt != null)
             {
                 return NotFound();
             }
 
-            existingCompany.Name = company.Name;
-            existingCompany.Description = company.Description;
+            existingCompany.Name = companyDto.Name;
+            existingCompany.Description = companyDto.Description;
 
             await _context.SaveChangesAsync();
             return NoContent();

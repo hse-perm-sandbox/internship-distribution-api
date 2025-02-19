@@ -1,0 +1,29 @@
+1) Пересобирает контейнер после изменений в коде и запускает в фоне (-d) 
+docker-compose up --build -d
+
+2) Запускает контейнеры без пересборки.
+docker-compose up -d
+
+3)Просто перезапускает контейнеры без пересборки.
+docker-compose restart
+
+4) Список запущенных контейнеров.
+docker ps
+
+5) Останавливает контейнер internship_backend
+docker stop internship_backend
+
+6)  Запускает контейнер internship_backend
+docker start internship_backend
+
+7) docker rm internship_backend
+docker rm internship_backend
+
+8)Удаляет образ.
+docker rmi internship_backend
+
+9)Подключаемся к PostgreSQL внутри контейнера.
+docker exec -it internship_pg psql -U postgres -d internship_distribution
+
+10) Очищает всё ненужное (остановленные контейнеры, образы, тома).
+docker system prune -a
