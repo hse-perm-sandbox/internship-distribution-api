@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InternshipDistribution.Models;
+using InternshipDistribution.Repositories;
 
 namespace InternshipDistribution.Controllers
 {
@@ -13,10 +14,12 @@ namespace InternshipDistribution.Controllers
     [ApiController]
     public class CompaniesController : Controller
     {
+        private readonly BaseRepository<Company> _repository;
         private readonly ApplicationDbContext _context;
 
         public CompaniesController(ApplicationDbContext context)
         {
+            _repository = new BaseRepository<Company>(context);
             _context = context;
         }
 
@@ -72,14 +75,11 @@ namespace InternshipDistribution.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCompany(int id)
         {
-            var company = await _context.Companies.FindAsync(id);
-            if (company == null || company.DeletedAt != null)
+            var isDeleted = await _repository.SoftDeleteAsync(id);
+            if (!isDeleted)
             {
                 return NotFound();
             }
-
-            company.DeletedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
