@@ -1,4 +1,3 @@
-
 using InternshipDistribution.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -11,12 +10,21 @@ namespace InternshipDistribution
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Регистрация CORS (добавьте ЭТОТ БЛОК)
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin() // Разрешить запросы с любых доменов
+                          .AllowAnyMethod() // Разрешить все HTTP-методы (GET, POST и т.д.)
+                          .AllowAnyHeader(); // Разрешить все заголовки
+                });
+            });
 
-            // Add services to the container.
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -30,25 +38,24 @@ namespace InternshipDistribution
 
             var app = builder.Build();
 
-            // Включаем Swagger только в режиме разработки
+            // Подключение CORS (добавьте ЭТУ СТРОКУ перед UseAuthorization)
+            app.UseCors("AllowAll");
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship Distribution API v1");
-                    options.RoutePrefix = string.Empty; // Открывать Swagger по умолчанию на главной странице
+                    options.RoutePrefix = string.Empty;
                 });
             }
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
-
             app.MapControllers();
 
-            // Главная страница API
             app.MapGet("/", () => "Welcome to Internship Distribution API! Use /swagger to view API documentation.");
-
             app.Run();
         }
     }
