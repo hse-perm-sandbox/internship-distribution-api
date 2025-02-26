@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
 using InternshipDistribution.DTO;
+using InternshipDistribution.Services;
 
 namespace InternshipDistribution.Controllers
 {
@@ -16,12 +17,12 @@ namespace InternshipDistribution.Controllers
     public class CompaniesController : Controller
     {
         private readonly BaseRepository<Company> _repository;
-        private readonly ApplicationDbContext _context;
+        private readonly CompanyService _companyService;
 
         public CompaniesController(ApplicationDbContext context)
         {
             _repository = new BaseRepository<Company>(context);
-            _context = context;
+            _companyService = new CompanyService();
         }
 
         [HttpGet]
@@ -45,11 +46,9 @@ namespace InternshipDistribution.Controllers
         [HttpPost]
         public async Task<ActionResult<Company>> CreateCompany(CompanyDto companyDto)
         {
-            var company = new Company
-            {
-                Name = companyDto.Name,
-                Description = companyDto.Description
-            };
+            var company = new Company();
+
+            _companyService.UpdateCompanyFromDto(company, companyDto);
 
             var createdCompany = await _repository.AddAsync(company);
 
@@ -63,14 +62,13 @@ namespace InternshipDistribution.Controllers
             if (company == null)
                 return NotFound();
 
-            company.Name = companyDto.Name;
-            company.Description = companyDto.Description;
+            _companyService.UpdateCompanyFromDto(company, companyDto);
 
             var updated = await _repository.UpdateAsync(company);
             if (!updated)
                 return BadRequest("Update failed");
 
-            return NoContent();
+            return Ok(company);
         }
 
         [HttpDelete("{id}")]
