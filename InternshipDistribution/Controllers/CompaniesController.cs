@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
-using InternshipDistribution.DTO;
 using InternshipDistribution.Services;
+using InternshipDistribution.InputModels;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace InternshipDistribution.Controllers
 {
@@ -44,7 +45,7 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Company>> CreateCompany(CompanyDto companyDto)
+        public async Task<ActionResult<Company>> CreateCompany(CompanyInput companyDto)
         {
             var company = new Company();
 
@@ -56,13 +57,32 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCompany(int id, CompanyDto companyDto)
+        public async Task<IActionResult> UpdateCompany(int id, CompanyInput companyDto)
         {
             var company = await _repository.GetByIdAsync(id);
             if (company == null)
                 return NotFound();
 
             _companyService.UpdateCompanyFromDto(company, companyDto);
+
+            var updated = await _repository.UpdateAsync(company);
+            if (!updated)
+                return BadRequest("Update failed");
+
+            return Ok(company);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateCompany(int id, [FromBody] JsonPatchDocument<CompanyInput> patchDoc)
+        {
+            if (patchDoc == null)
+                return BadRequest("Invalid patch document");
+
+            var company = await _repository.GetByIdAsync(id);
+            if (company == null)
+                return NotFound();
+
+            _companyService.UpdateCompanyFromJsonPatchDocument(company, patchDoc);
 
             var updated = await _repository.UpdateAsync(company);
             if (!updated)
