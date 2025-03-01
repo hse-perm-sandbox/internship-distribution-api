@@ -10,11 +10,13 @@ using InternshipDistribution.Repositories;
 using InternshipDistribution.Services;
 using InternshipDistribution.InputModels;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InternshipDistribution.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CompaniesController : Controller
     {
         private readonly BaseRepository<Company> _repository;
@@ -45,6 +47,7 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequireManager")]
         public async Task<ActionResult<Company>> CreateCompany(CompanyInput companyDto)
         {
             var company = new Company();
@@ -57,6 +60,7 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "RequireManager")]
         public async Task<IActionResult> UpdateCompany(int id, CompanyInput companyDto)
         {
             var company = await _repository.GetByIdAsync(id);
@@ -73,6 +77,7 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Policy = "RequireManager")]
         public async Task<IActionResult> UpdateCompany(int id, [FromBody] JsonPatchDocument<CompanyInput> patchDoc)
         {
             if (patchDoc == null)
@@ -92,6 +97,7 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "RequireManager")]
         public async Task<IActionResult> DeleteCompany(int id)
         {
             var isDeleted = await _repository.SoftDeleteAsync(id);

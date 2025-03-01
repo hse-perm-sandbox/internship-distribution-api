@@ -1,5 +1,4 @@
-﻿using InternshipDistribution.DTO;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace InternshipDistribution.Models
 {

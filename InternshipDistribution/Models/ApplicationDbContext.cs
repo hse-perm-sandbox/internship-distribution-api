@@ -6,10 +6,11 @@ namespace InternshipDistribution.Models
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            Database.EnsureCreated();
+
         }
 
         public DbSet<Company> Companies { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {

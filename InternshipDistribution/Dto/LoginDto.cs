@@ -1,19 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InternshipDistribution.Models
+namespace InternshipDistribution.Dto
 {
-    public class User : BaseEntity
+    public class LoginDto
     {
         [Required(ErrorMessage = "Email обязателен")]
         [EmailAddress(ErrorMessage = "Некорректный формат Email")]
-        [MaxLength(255, ErrorMessage = "Email слишком длинный")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Пароль обязателен")]
         [DataType(DataType.Password)]
-        public string PasswordHash { get; set; }
-
-        [Required]
-        public bool IsManager { get; set; } = false;
+        public string Password { get; set; }
     }
 }
