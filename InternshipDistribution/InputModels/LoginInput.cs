@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InternshipDistribution.Dto
+namespace InternshipDistribution.InputModels
 {
-    public class RegisterDto
+    public class LoginInput
     {
         [Required(ErrorMessage = "Email обязателен")]
         [EmailAddress(ErrorMessage = "Некорректный формат Email")]
@@ -11,7 +11,5 @@ namespace InternshipDistribution.Dto
         [Required(ErrorMessage = "Пароль обязателен")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-
-        public bool IsManager { get; set; } = false;
     }
 }
