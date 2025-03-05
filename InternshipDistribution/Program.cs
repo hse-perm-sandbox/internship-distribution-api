@@ -41,6 +41,16 @@ namespace InternshipDistribution
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnForbidden = async context =>
+                    {
+                        context.Response.StatusCode = 403;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync("{\"error\": \"Доступ запрещен. Требуется роль Manager.\"}");
+                    }
+                };
             });
 
             builder.Services.AddAuthorization(options =>

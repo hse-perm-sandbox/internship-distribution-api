@@ -52,21 +52,5 @@ namespace InternshipDistribution.Services
 
             return _jwtService.GenerateToken(user);
         }
-
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
-        {
-            return await _userRepository.GetAllAsync();
-        }
-
-        public async Task<bool> UpdateUserRoleAsync(int userId, bool isManager)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                return false;
-
-            user.IsManager = isManager;
-
-            return await _userRepository.UpdateAsync(user);
-        }
     }
 }
