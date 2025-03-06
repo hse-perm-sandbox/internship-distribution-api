@@ -15,5 +15,7 @@ namespace InternshipDistribution.Models
 
         [Required]
         public bool IsManager { get; set; } = false;
+
+        public virtual Student Student { get; set; }
     }
 }
