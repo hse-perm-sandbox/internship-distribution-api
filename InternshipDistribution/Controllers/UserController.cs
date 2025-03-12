@@ -3,6 +3,7 @@ using InternshipDistribution.Models;
 using InternshipDistribution.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 
 namespace InternshipDistribution.Controllers
 {
@@ -18,7 +19,7 @@ namespace InternshipDistribution.Controllers
             _userService = userService;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet("")]
         public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -33,6 +34,16 @@ namespace InternshipDistribution.Controllers
                 return NotFound("Пользователь не найден");
 
             return Ok($"Поле isManager = {isManager} у пользователя User c Id = {userId}");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var isDeleted = await _userService.DeleteUserAsync(id);
+            if (!isDeleted)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

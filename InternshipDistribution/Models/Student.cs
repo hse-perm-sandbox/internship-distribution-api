@@ -13,10 +13,10 @@ namespace InternshipDistribution.Models
         public string? Fathername { get; set; }
         public string? Resume { get; set; }
 
+        [Required(ErrorMessage = "UserId обязательно")]
         [ForeignKey("User")]
-        public int UserId { get; set; }  // Тип должен совпадать с ключом в User
+        public int UserId { get; set; } 
 
-        // Навигационное свойство
         public virtual User User { get; set; }
     }
 }

@@ -33,5 +33,10 @@ namespace InternshipDistribution.Services
 
             return await _userRepository.UpdateAsync(user);
         }
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            return await _userRepository.SoftDeleteAsync(id);
+        }
     }
 }

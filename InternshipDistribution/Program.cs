@@ -18,7 +18,11 @@ namespace InternshipDistribution
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Регистрация CORS
+            DotNetEnv.Env.Load(Path.Combine("..", ".env"));
+            var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            if (!string.IsNullOrEmpty(secretKey))
+                builder.Configuration["Jwt:SecretKey"] = secretKey;
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -44,11 +48,12 @@ namespace InternshipDistribution
 
                 options.Events = new JwtBearerEvents
                 {
+
                     OnForbidden = async context =>
                     {
                         context.Response.StatusCode = 403;
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync("{\"error\": \"Доступ запрещен. Требуется роль Manager.\"}");
+                        await context.Response.WriteAsync("{\"error\": \"Доступ запрещен. Требуется роль: Manager \"}");
                     }
                 };
             });
@@ -60,20 +65,26 @@ namespace InternshipDistribution
                     .RequireAuthenticatedUser()
                     .Build();
 
-                // Политика для менеджеров
                 options.AddPolicy("RequireManager", policy =>
                     policy.RequireRole("Manager"));
+
+                //options.AddPolicy("RequireStudent", policy =>
+                //    policy.RequireRole("Student"));
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            //DotNetEnv.Env.Load();
-
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddScoped<BCryptPasswordHasher>();
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<StudentService>();
+            builder.Services.AddScoped<StudentRepository>();
+            builder.Services.AddScoped<FileStorageService>();
+
+
 
             builder.Services.AddControllers().AddNewtonsoftJson();
             builder.Services.AddEndpointsApiExplorer();
@@ -119,8 +130,18 @@ namespace InternshipDistribution
 
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate(); // Применяет все pending миграции
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<ApplicationDbContext>();
+                    var hasher = services.GetRequiredService<BCryptPasswordHasher>();
+
+                    DbInitializer.Initialize(context, hasher);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Ошибка инициализации БД: " + ex.Message);
+                }
             }
 
             // Подключение CORS 

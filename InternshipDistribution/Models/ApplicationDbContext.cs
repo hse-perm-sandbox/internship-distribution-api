@@ -11,6 +11,8 @@ namespace InternshipDistribution.Models
 
         public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Student> Students { get; set; }
+
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
@@ -51,11 +53,13 @@ namespace InternshipDistribution.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.User)
-                .WithOne(u => u.Student)
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Student)
+                .WithOne(s => s.User)
                 .HasForeignKey<Student>(s => s.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<Student>()
                 .HasIndex(s => s.UserId)
