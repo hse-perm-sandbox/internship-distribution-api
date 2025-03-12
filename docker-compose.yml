@@ -18,20 +18,20 @@ services:
       retries: 5
 
   # Сервис ASP.NET Web API
-  # backend:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: internship_backend
-  #   restart: always  Перезапуск при сбоях
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy  Ждём, пока PostgreSQL будет готов
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #     ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
-  #   ports:
-  #     - "8080:8080"
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: internship_backend
+    restart: always  Перезапуск при сбоях
+    depends_on:
+      postgres:
+        condition: service_healthy  # Ждём, пока PostgreSQL будет готов
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:  # Том для сохранения данных PostgreSQL
