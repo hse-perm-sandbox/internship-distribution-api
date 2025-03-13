@@ -23,13 +23,16 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: internship_backend
-    restart: always  Перезапуск при сбоях
+    restart: always
     depends_on:
       postgres:
         condition: service_healthy  # Ждём, пока PostgreSQL будет готов
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      DEFAULT_MANAGER_EMAIL: ${DEFAULT_MANAGER_EMAIL}
+      DEFAULT_MANAGER_PASSWORD: ${DEFAULT_MANAGER_PASSWORD}
     ports:
       - "8080:8080"
 
