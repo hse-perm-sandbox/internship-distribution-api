@@ -53,7 +53,10 @@ namespace InternshipDistribution
                     {
                         context.Response.StatusCode = 403;
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync("{\"error\": \"Доступ запрещен. Требуется роль: Manager \"}");
+                        var errorMessage = context.HttpContext.User.IsInRole("Student")
+                            ? "Доступ только к своим данным"
+                            : "Требуется роль Manager";
+                        await context.Response.WriteAsync($"{{\"error\": \"{errorMessage}\"}}");
                     }
                 };
             });
@@ -68,13 +71,14 @@ namespace InternshipDistribution
                 options.AddPolicy("RequireManager", policy =>
                     policy.RequireRole("Manager"));
 
-                //options.AddPolicy("RequireStudent", policy =>
-                //    policy.RequireRole("Student"));
+                options.AddPolicy("RequireStudent", policy =>
+                    policy.RequireRole("Student"));
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<JwtService>();
@@ -152,7 +156,7 @@ namespace InternshipDistribution
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship Distribution API v1");
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Intersnship Distribution API v1");
                     options.RoutePrefix = "api/docs/swagger";
                 });
             }

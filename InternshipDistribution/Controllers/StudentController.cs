@@ -80,9 +80,11 @@ namespace InternshipDistribution.Controllers
         }
 
         [HttpGet("{student_id}/resume")]
-        [Authorize(Policy = "RequireManager")]
+        [Authorize]
         public async Task<IActionResult> DownloadResume(int student_id)
         {
+            await _studentService.CheckAccess(student_id);
+
             var student = await _studentService.GetStudentById(student_id);
 
             if (student.Resume == null)
