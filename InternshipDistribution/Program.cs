@@ -153,7 +153,7 @@ namespace InternshipDistribution
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Internship Distribution API v1");
-                    options.RoutePrefix = string.Empty;
+                    options.RoutePrefix = "api/docs/swagger";
                 });
             }
 
@@ -162,7 +162,11 @@ namespace InternshipDistribution
             app.UseAuthorization();
             app.MapControllers();
 
-            app.MapGet("/", () => "Welcome to Internship Distribution API! Use /swagger to view API documentation.");
+            app.MapGet("/", context =>
+            {
+                context.Response.Redirect("/api/docs/swagger");
+                return Task.CompletedTask;
+            }); 
             app.Run();
         }
     }
