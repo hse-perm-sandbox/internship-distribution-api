@@ -47,7 +47,7 @@ namespace InternshipDistribution.Services
         {
             var student = await _studentRepository.GetByIdAsync(id);
             if (student == null)
-                throw new BadHttpRequestException($"Student с Id = {id} не найден", StatusCodes.Status404NotFound);
+                throw new KeyNotFoundException($"Student с Id = {id} не найден");
 
             return student;
         }

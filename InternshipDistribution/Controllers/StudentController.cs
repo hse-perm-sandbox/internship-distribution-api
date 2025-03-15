@@ -83,24 +83,60 @@ namespace InternshipDistribution.Controllers
         [Authorize]
         public async Task<IActionResult> DownloadResume(int student_id)
         {
-            await _studentService.CheckAccess(student_id);
+            try
+            {
+                await _studentService.CheckAccess(student_id);
+                var student = await _studentService.GetStudentById(student_id);
 
-            var student = await _studentService.GetStudentById(student_id);
+                if (student?.Resume == null)
+                    return NotFound("Резюме не найдено");
 
-            if (student.Resume == null)
-                return NotFound("Резюме не найдено");
-
-            var stream = _fileStorageService.GetResume(student.Resume);
-            return File(stream, "application/pdf", $"{student.Resume}");
+                var stream = _fileStorageService.GetResume(student.Resume);
+                return File(stream, "application/pdf", $"{student.Resume}");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Внутренняя ошибка сервера" });
+            }
         }
 
         [HttpDelete("{student_id}/resume")]
         [Authorize]
         public async Task<IActionResult> DeleteResume(int student_id)
         {
-            await _studentService.DeleteResumeAsync(student_id);
-
-            return NoContent();
+            try
+            {
+                await _studentService.DeleteResumeAsync(student_id);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Внутренняя ошибка сервера" });
+            }
         }
     }
 }
