@@ -60,14 +60,22 @@ namespace InternshipDistribution
 
                 options.Events = new JwtBearerEvents
                 {
-
                     OnForbidden = async context =>
                     {
                         context.Response.StatusCode = 403;
                         context.Response.ContentType = "application/json";
-                        var errorMessage = context.HttpContext.User.IsInRole("Student")
-                            ? "Доступ только к своим данным"
-                            : "Требуется роль Manager";
+
+                        var endpoint = context.HttpContext.GetEndpoint();
+                        var requireRole = endpoint?.Metadata
+                            .GetMetadata<AuthorizeAttribute>()?.Roles;
+
+                        var errorMessage = requireRole switch
+                        {
+                            "Student" => "Требуется роль Student",
+                            "Manager" => "Требуется роль Manager",
+                            _ => "Доступ запрещен"
+                        };
+
                         await context.Response.WriteAsync($"{{\"error\": \"{errorMessage}\"}}");
                     }
                 };

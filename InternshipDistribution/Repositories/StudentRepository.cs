@@ -27,5 +27,12 @@ namespace InternshipDistribution.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Student?> GetStudentByUserIdAsync(int userId)
+        {
+            return await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == userId && s.DeletedAt == null);
+        }
     }
 }

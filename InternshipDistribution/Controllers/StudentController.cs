@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
+using System.Security.Claims;
 
 namespace InternshipDistribution.Controllers
 {
@@ -28,16 +29,26 @@ namespace InternshipDistribution.Controllers
         {
             var student = await _studentService.CreateStudentAsync(input);
 
-            var outputDto = new StudentOutputDto
-            {
-                Id = student.Id,
-                Name = student.Name,
-                Lastname = student.Lastname,
-                Fathername = student.Fathername,
-                UserId = student.UserId
-            };
+            var outputDto = _studentService.StudentToStudentOutPutDto(student);
 
             return CreatedAtAction(nameof(Get), new { id = outputDto.Id }, outputDto);
+        }
+
+        [HttpGet("me")]
+        [Authorize(Policy = "RequireStudent")]
+        public async Task<ActionResult<StudentOutputDto>> GetCurrentStudent()
+        {
+            try
+            {
+                var student = await _studentService.GetStudentByUserIdAsync();
+
+                return _studentService.StudentToStudentOutPutDto(student);
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]

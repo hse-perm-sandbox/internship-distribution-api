@@ -1,10 +1,12 @@
-﻿using InternshipDistribution.InputModels;
+﻿using InternshipDistribution.Dto;
+using InternshipDistribution.InputModels;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
 using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using System.Security.Claims;
+using System.Xml.Linq;
 
 namespace InternshipDistribution.Services
 {
@@ -50,6 +52,17 @@ namespace InternshipDistribution.Services
                 throw new KeyNotFoundException($"Student с Id = {id} не найден");
 
             return student;
+        }
+
+        public async Task<Student?> GetStudentByUserIdAsync()
+        {
+            var userId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var stusent = await _studentRepository.GetStudentByUserIdAsync(userId);
+
+            if (stusent == null)
+                throw new KeyNotFoundException($"Student с userId = {userId} не найден");
+
+            return stusent;
         }
 
         public async Task<IEnumerable<Student>> GetAllStudentsAsync()
@@ -99,6 +112,20 @@ namespace InternshipDistribution.Services
 
             if (!currentUser.IsManager && student.UserId != int.Parse(currentUserId))
                 throw new UnauthorizedAccessException("Доступ запрещен");
+        }
+
+        public StudentOutputDto StudentToStudentOutPutDto(Student student)
+        {
+            StudentOutputDto studentDto = new StudentOutputDto
+            {
+                Id = student.Id,
+                Name = student.Name,
+                Lastname = student.Lastname,
+                Fathername = student.Fathername,
+                UserId = student.UserId
+            };
+
+            return studentDto;
         }
     }
 }
