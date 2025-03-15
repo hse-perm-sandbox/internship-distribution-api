@@ -78,11 +78,11 @@ namespace InternshipDistribution.Services
             if (student.Resume == null)
                 throw new BadHttpRequestException("Резюме не найдено", StatusCodes.Status404NotFound);
 
-            await _studentRepository.DeleteResumeNameAsync(student);
-
             var isDeleted = _fileStorageService.DeleteResume(student.Resume);
             if (!isDeleted)
                 throw new BadHttpRequestException("Не удалось удалить файл", StatusCodes.Status400BadRequest);
+
+            await _studentRepository.DeleteResumeNameAsync(student);
 
             return true;
         }

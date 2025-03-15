@@ -4,6 +4,7 @@ using InternshipDistribution.Repositories;
 using InternshipDistribution.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +19,18 @@ namespace InternshipDistribution
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+            });
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 104857600; // 100 MB
+            });
+
             DotNetEnv.Env.Load(Path.Combine("..", ".env"));
+
             var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
             if (!string.IsNullOrEmpty(secretKey))
                 builder.Configuration["Jwt:SecretKey"] = secretKey;
