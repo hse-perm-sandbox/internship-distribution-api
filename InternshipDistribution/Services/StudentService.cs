@@ -122,7 +122,8 @@ namespace InternshipDistribution.Services
                 Name = student.Name,
                 Lastname = student.Lastname,
                 Fathername = student.Fathername,
-                UserId = student.UserId
+                UserId = student.UserId,
+                ResumeFileName = student.Resume
             };
 
             return studentDto;

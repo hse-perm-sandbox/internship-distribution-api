@@ -21,7 +21,7 @@ namespace InternshipDistribution
 
             builder.Services.Configure<FormOptions>(options =>
             {
-                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB (пытался решить ошибку с загрузкой файлом в дебаг версии)
             });
 
             builder.WebHost.ConfigureKestrel(options =>
@@ -41,7 +41,8 @@ namespace InternshipDistribution
                 {
                     policy.AllowAnyOrigin() // Разрешить запросы с любых доменов
                           .AllowAnyMethod() // Разрешить все HTTP-методы (GET, POST и т.д.)
-                          .AllowAnyHeader(); // Разрешить все заголовки
+                          .AllowAnyHeader() // Разрешить все заголовки
+                          .WithExposedHeaders("Content-Disposition");
                 });
             });
 
@@ -69,10 +70,11 @@ namespace InternshipDistribution
                         var requireRole = endpoint?.Metadata
                             .GetMetadata<AuthorizeAttribute>()?.Roles;
 
-                        var errorMessage = requireRole switch
+                        var policy = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>()?.Policy;
+                        var errorMessage = policy switch
                         {
-                            "Student" => "Требуется роль Student",
-                            "Manager" => "Требуется роль Manager",
+                            "RequireStudent" => "Требуется роль Student",
+                            "RequireManager" => "Требуется роль Manager",
                             _ => "Доступ запрещен"
                         };
 
