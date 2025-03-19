@@ -32,6 +32,14 @@ namespace InternshipDistribution.Services
             var fileName = GenerateResumeName(student);
             var filePath = Path.Combine(_storagePath, fileName);
 
+            var directory = Path.GetDirectoryName(filePath);
+
+            if (directory == null)
+                throw new InvalidOperationException("Директория для сохранения файла = null");
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);

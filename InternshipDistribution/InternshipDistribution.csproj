@@ -35,8 +35,4 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FileStorage\resumes\" />
-  </ItemGroup>
-
 </Project>

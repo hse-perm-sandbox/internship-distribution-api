@@ -119,7 +119,7 @@ namespace InternshipDistribution.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Error = "Внутренняя ошибка сервера" });
+                return StatusCode(500, new { Error = ex.Message });
             }
         }
 
