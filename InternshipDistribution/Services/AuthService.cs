@@ -13,12 +13,19 @@ namespace InternshipDistribution.Services
         private readonly UserRepository _userRepository;
         private readonly BCryptPasswordHasher _passwordHasher;
         private readonly JwtService _jwtService;
+        private readonly PasswordGeneratorService _passwordGeneratorService;
 
-        public AuthService(UserRepository userRepository, BCryptPasswordHasher passwordHasher, JwtService jwtService)
+        public AuthService(UserRepository userRepository, BCryptPasswordHasher passwordHasher, JwtService jwtService, PasswordGeneratorService passwordGeneratorService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
+            _passwordGeneratorService = passwordGeneratorService;
+        }
+        public class RegistrationResult
+        {
+            public User User { get; set; }
+            public string GeneratedPassword { get; set; }
         }
 
         public async Task<SignUpResponse> Register(RegisterInput registerDto)
@@ -41,6 +48,28 @@ namespace InternshipDistribution.Services
                 Id = user.Id,
                 Email = user.Email,
                 IsManager = user.IsManager
+            };
+        }
+
+        public async Task<RegistrationResult> RegisterStudentWithGeneratedPassword(StudentInputWithEmail studentInput)
+        {
+            if (await _userRepository.GetUserByEmail(studentInput.Email) != null)
+                return null;
+
+            var password = _passwordGeneratorService.Generate();
+            var user = new User
+            {
+                Email = studentInput.Email,
+                PasswordHash = _passwordHasher.HashPassword(password),
+                IsManager = false
+            };
+
+            await _userRepository.AddAsync(user);
+
+            return new RegistrationResult
+            {
+                User = user,
+                GeneratedPassword = password
             };
         }
 

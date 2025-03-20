@@ -2,6 +2,7 @@
 using InternshipDistribution.InputModels;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
@@ -16,13 +17,17 @@ namespace InternshipDistribution.Services
         private readonly UserRepository _userRepository;
         private readonly FileStorageService _fileStorageService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AuthService _authService;
+        private readonly BCryptPasswordHasher _passwordHasher;
 
-        public StudentService(StudentRepository studentRepository, UserRepository userRepository, FileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor)
+        public StudentService(StudentRepository studentRepository, UserRepository userRepository, FileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor, AuthService authService, BCryptPasswordHasher passwordHasher)
         {
             _studentRepository = studentRepository;
             _userRepository = userRepository;
             _fileStorageService = fileStorageService;
             _httpContextAccessor = httpContextAccessor;
+            _authService = authService;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<Student?> CreateStudentAsync(StudentInput studentInput)
@@ -43,6 +48,51 @@ namespace InternshipDistribution.Services
             };
 
             return await _studentRepository.AddAsync(student);
+        }
+
+        public async Task<BulkCreateStudentsResponse> BulkCreateStudentsAsync(List<StudentInputWithEmail> studentsInput)
+        {
+            var students = new BulkCreateStudentsResponse();
+
+            foreach (var input in studentsInput)
+            {
+                try
+                {
+                    var registrationUser = await _authService.RegisterStudentWithGeneratedPassword(input);
+
+                    if (registrationUser == null)
+                    {
+                        students.FailedEmails.Add(input.Email);
+                        continue;
+                    }
+
+                    var student = new Student
+                    {
+                        UserId = registrationUser.User.Id,
+                        Name = input.Name,
+                        Lastname = input.Lastname,
+                        Fathername = input.Fathername
+                    };
+
+                    await _studentRepository.AddAsync(student);
+
+                    students.CreatedStudents.Add(new StudentWithPasswordResult
+                    {
+                        StudentId = student.Id,
+                        Email = registrationUser.User.Email,
+                        GeneratedPassword = registrationUser.GeneratedPassword,
+                        Name = student.Name,
+                        Lastname = student.Lastname,
+                        Fathername = student.Fathername
+                    });
+                }
+                catch (Exception ex)
+                {
+                    students.FailedEmails.Add(input.Email);
+                }
+            }
+
+            return students;
         }
 
         public async Task<Student?> GetStudentById(int id)

@@ -109,7 +109,7 @@ namespace InternshipDistribution
             builder.Services.AddScoped<StudentService>();
             builder.Services.AddScoped<StudentRepository>();
             builder.Services.AddScoped<FileStorageService>();
-
+            builder.Services.AddScoped<PasswordGeneratorService>();
 
 
             builder.Services.AddControllers().AddNewtonsoftJson();

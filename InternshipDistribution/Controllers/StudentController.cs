@@ -34,6 +34,15 @@ namespace InternshipDistribution.Controllers
             return CreatedAtAction(nameof(Get), new { id = outputDto.Id }, outputDto);
         }
 
+        [HttpPost("bulk-create")]
+        [Authorize(Policy = "RequireManager")]
+        public async Task<ActionResult<BulkCreateStudentsResponse>> BulkCreateStudents(BulkCreateStudentRequest request)
+        {
+            var result = await _studentService.BulkCreateStudentsAsync(request.Students);
+
+            return Ok(result);
+        }
+
         [HttpGet("me")]
         [Authorize(Policy = "RequireStudent")]
         public async Task<ActionResult<StudentOutputDto>> GetCurrentStudent()
