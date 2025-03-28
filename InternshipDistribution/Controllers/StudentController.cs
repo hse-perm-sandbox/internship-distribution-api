@@ -158,5 +158,20 @@ namespace InternshipDistribution.Controllers
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
+
+        [HttpGet("with-applications")]
+        [Authorize(Policy = "RequireManager")]
+        public async Task<ActionResult<IEnumerable<StudentWithApplication>>> GetAllStudentsWithApplications()
+        {
+            try
+            {
+                var students = await _studentService.GetAllStudentsWithApplicationsAsync();
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
     }
 }

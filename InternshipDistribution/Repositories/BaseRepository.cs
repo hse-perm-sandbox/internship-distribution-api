@@ -17,6 +17,7 @@ namespace InternshipDistribution.Repositories
         {
             return await _dbSet.Where(e => e.DeletedAt == null).ToListAsync();
         }
+
         public async Task<T?> GetByIdAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id);

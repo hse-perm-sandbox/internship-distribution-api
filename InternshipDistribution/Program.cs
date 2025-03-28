@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace InternshipDistribution
 {
@@ -110,9 +111,18 @@ namespace InternshipDistribution
             builder.Services.AddScoped<StudentRepository>();
             builder.Services.AddScoped<FileStorageService>();
             builder.Services.AddScoped<PasswordGeneratorService>();
+            builder.Services.AddScoped<ApplicationRepository>();
+            builder.Services.AddScoped<ApplicationService>();
+            builder.Services.AddScoped<CompanyRepository>();
 
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson() // Для совместимости (если где-то используется Newtonsoft)
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; // Дополнительно: игнорирует циклические ссылки
+                });
 
-            builder.Services.AddControllers().AddNewtonsoftJson();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

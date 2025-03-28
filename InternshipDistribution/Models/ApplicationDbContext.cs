@@ -64,6 +64,11 @@ namespace InternshipDistribution.Models
             modelBuilder.Entity<Student>()
                 .HasIndex(s => s.UserId)
                 .IsUnique();
+
+            modelBuilder.Entity<DistributionApplication>()
+                .HasOne(a => a.Student)
+                .WithMany(s => s.Applications)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

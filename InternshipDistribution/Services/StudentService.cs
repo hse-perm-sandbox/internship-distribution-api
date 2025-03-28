@@ -1,4 +1,5 @@
-﻿using InternshipDistribution.Dto;
+﻿using Humanizer;
+using InternshipDistribution.Dto;
 using InternshipDistribution.InputModels;
 using InternshipDistribution.Models;
 using InternshipDistribution.Repositories;
@@ -18,9 +19,13 @@ namespace InternshipDistribution.Services
         private readonly FileStorageService _fileStorageService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AuthService _authService;
+        private readonly ApplicationRepository _applicationRepository;
         private readonly BCryptPasswordHasher _passwordHasher;
 
-        public StudentService(StudentRepository studentRepository, UserRepository userRepository, FileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor, AuthService authService, BCryptPasswordHasher passwordHasher)
+        public StudentService(StudentRepository studentRepository, UserRepository userRepository,
+            FileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor,
+            AuthService authService, BCryptPasswordHasher passwordHasher,
+           ApplicationRepository applicationRepository)
         {
             _studentRepository = studentRepository;
             _userRepository = userRepository;
@@ -28,6 +33,7 @@ namespace InternshipDistribution.Services
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
             _passwordHasher = passwordHasher;
+            _applicationRepository = applicationRepository;
         }
 
         public async Task<Student?> CreateStudentAsync(StudentInput studentInput)
@@ -177,6 +183,38 @@ namespace InternshipDistribution.Services
             };
 
             return studentDto;
+        }
+
+        public async Task<IEnumerable<StudentWithApplication>> GetAllStudentsWithApplicationsAsync()
+        {
+            var students = await _studentRepository.GetAllAsync();
+            var result = new List<StudentWithApplication>();
+
+            foreach (var student in students)
+            {
+                DistributionApplication? application = null;
+
+                application = await _applicationRepository.GetByStudentIdAsync(student.Id);
+
+                result.Add(new StudentWithApplication
+                {
+                    Id = student.Id,
+                    Name = student.Name,
+                    Lastname = student.Lastname,
+                    Fathername = student.Fathername,
+                    UserId = student.UserId,
+                    ResumeFileName = student.Resume,
+                    Priority1CompanyId = application?.Priority1CompanyId,
+                    Priority2CompanyId = application?.Priority2CompanyId,
+                    Priority3CompanyId = application?.Priority3CompanyId,
+                    Priority1Status = application?.Priority1Status.Humanize() ?? "NotSelected",
+                    Priority2Status = application?.Priority2Status.Humanize() ?? "NotSelected",
+                    Priority3Status = application?.Priority3Status.Humanize() ?? "NotSelected",
+                    Status = application?.Status.Humanize() ?? "NotCreated"
+                });
+            }
+
+            return result;
         }
     }
 }
