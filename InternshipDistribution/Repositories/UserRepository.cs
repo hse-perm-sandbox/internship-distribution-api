@@ -9,7 +9,7 @@ namespace InternshipDistribution.Repositories
 
         public async Task<User?> GetUserByEmail(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(n => n.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(n => n.Email == email && n.DeletedAt == null);
         }
     }
 }

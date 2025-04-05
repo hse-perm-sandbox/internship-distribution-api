@@ -12,6 +12,8 @@ namespace InternshipDistribution.Models
         public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<DistributionApplication> DistributionApplications { get; set; }
+
 
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)

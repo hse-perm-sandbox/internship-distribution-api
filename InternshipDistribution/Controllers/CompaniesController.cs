@@ -19,26 +19,26 @@ namespace InternshipDistribution.Controllers
     [Authorize]
     public class CompaniesController : Controller
     {
-        private readonly BaseRepository<Company> _repository;
+        private readonly CompanyRepository _companyRepository;
         private readonly CompanyService _companyService;
 
-        public CompaniesController(ApplicationDbContext context)
+        public CompaniesController(ApplicationDbContext context, CompanyRepository companyRepository, CompanyService companyService)
         {
-            _repository = new BaseRepository<Company>(context);
-            _companyService = new CompanyService();
+            _companyRepository = companyRepository;
+            _companyService = companyService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
         {
-            var companies = await _repository.GetAllAsync();
+            var companies = await _companyRepository.GetAllAsync();
             return Ok(companies);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Company>> GetCompany(int id)
         {
-            var company = await _repository.GetByIdAsync(id);
+            var company = await _companyRepository.GetByIdAsync(id);
 
             if (company == null)
                 return NotFound();
@@ -54,7 +54,7 @@ namespace InternshipDistribution.Controllers
 
             _companyService.UpdateCompanyFromDto(company, companyDto);
 
-            var createdCompany = await _repository.AddAsync(company);
+            var createdCompany = await _companyRepository.AddAsync(company);
 
             return CreatedAtAction(nameof(GetCompany), new { id = createdCompany.Id }, createdCompany);
         }
@@ -63,13 +63,13 @@ namespace InternshipDistribution.Controllers
         [Authorize(Policy = "RequireManager")]
         public async Task<IActionResult> UpdateCompany(int id, CompanyInput companyDto)
         {
-            var company = await _repository.GetByIdAsync(id);
+            var company = await _companyRepository.GetByIdAsync(id);
             if (company == null)
                 return NotFound();
 
             _companyService.UpdateCompanyFromDto(company, companyDto);
 
-            var updated = await _repository.UpdateAsync(company);
+            var updated = await _companyRepository.UpdateAsync(company);
             if (!updated)
                 return BadRequest("Update failed");
 
@@ -83,13 +83,13 @@ namespace InternshipDistribution.Controllers
             if (patchDoc == null)
                 return BadRequest("Invalid patch document");
 
-            var company = await _repository.GetByIdAsync(id);
+            var company = await _companyRepository.GetByIdAsync(id);
             if (company == null)
                 return NotFound();
 
             _companyService.UpdateCompanyFromJsonPatchDocument(company, patchDoc);
 
-            var updated = await _repository.UpdateAsync(company);
+            var updated = await _companyRepository.UpdateAsync(company);
             if (!updated)
                 return BadRequest("Update failed");
 
@@ -100,7 +100,7 @@ namespace InternshipDistribution.Controllers
         [Authorize(Policy = "RequireManager")]
         public async Task<IActionResult> DeleteCompany(int id)
         {
-            var isDeleted = await _repository.SoftDeleteAsync(id);
+            var isDeleted = await _companyRepository.SoftDeleteAsync(id);
             if (!isDeleted)
                 return NotFound();
 

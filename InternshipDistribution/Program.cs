@@ -114,6 +114,7 @@ namespace InternshipDistribution
             builder.Services.AddScoped<ApplicationRepository>();
             builder.Services.AddScoped<ApplicationService>();
             builder.Services.AddScoped<CompanyRepository>();
+            builder.Services.AddScoped<CompanyService>();
 
             builder.Services.AddControllers()
                 .AddNewtonsoftJson() // Для совместимости (если где-то используется Newtonsoft)

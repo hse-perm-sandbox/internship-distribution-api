@@ -10,12 +10,16 @@ namespace InternshipDistribution.Services
         private readonly UserRepository _userRepository;
         private readonly BCryptPasswordHasher _passwordHasher;
         private readonly JwtService _jwtService;
+        private readonly StudentService _studentService;
+        private readonly StudentRepository _studentRepository;
 
-        public UserService(UserRepository userRepository, BCryptPasswordHasher passwordHasher, JwtService jwtService)
+        public UserService(UserRepository userRepository, BCryptPasswordHasher passwordHasher, JwtService jwtService, StudentService studentService, StudentRepository studentRepository)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
+            _studentService = studentService;
+            _studentRepository = studentRepository;
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()

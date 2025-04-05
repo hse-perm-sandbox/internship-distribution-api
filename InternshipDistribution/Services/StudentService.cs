@@ -121,6 +121,16 @@ namespace InternshipDistribution.Services
             return stusent;
         }
 
+        public async Task<Student?> GetStudentByUserIdAsync(int userId)
+        {
+            var stusent = await _studentRepository.GetStudentByUserIdAsync(userId);
+
+            if (stusent == null)
+                throw new KeyNotFoundException($"Student с userId = {userId} не найден");
+
+            return stusent;
+        }
+
         public async Task<IEnumerable<Student>> GetAllStudentsAsync()
         {
             return await _studentRepository.GetAllAsync();
